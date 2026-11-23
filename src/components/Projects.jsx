@@ -21,7 +21,7 @@ const projects = [
     description:
       "A modern gaming PC marketplace where users can explore PC components, customize their builds and discover hardware products with intelligent AI-powered assistance.",
     category: "Full Stack Development",
-    technologies: ["Next.js", "React", "Node.js", "MongoDB", "Tailwind CSS"],
+    technologies: ["Javascript", "React", "Node.js", "MongoDB", "Tailwind CSS"],
     github: "https://github.com/jishnusanthosh",
     demo: null,
     featured: true,

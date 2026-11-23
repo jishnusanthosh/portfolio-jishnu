@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -21,6 +20,7 @@ export default function Contact() {
   });
 
   const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -33,19 +33,44 @@ export default function Contact() {
     setStatus("");
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    setStatus(
-      "Your form is validated. Connect an email service or backend API to deliver this message."
-    );
+    setLoading(true);
+    setStatus("");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to send message.");
+      }
+
+      setStatus(data.message);
+
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error) {
+      setStatus(error.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <section
-      id="contact"
-      className="relative overflow-hidden py-24 sm:py-28"
-    >
+    <section id="contact" className="relative overflow-hidden py-24 sm:py-28">
       <div className="pointer-events-none absolute left-0 top-1/4 h-72 w-72 rounded-full bg-blue-600/10 blur-[120px]" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-72 w-72 rounded-full bg-cyan-500/10 blur-[120px]" />
 
@@ -90,24 +115,18 @@ export default function Contact() {
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-white">
-                      Location
-                    </p>
-                    <p className="mt-1 text-sm text-gray-400">
-                      Kerala, India
-                    </p>
+                    <p className="text-sm font-medium text-white">Location</p>
+                    <p className="mt-1 text-sm text-gray-400">Kerala, India</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
-                   <Code2 size={19} />
+                    <Code2 size={19} />
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-white">
-                      GitHub
-                    </p>
+                    <p className="text-sm font-medium text-white">GitHub</p>
                     <a
                       href="https://github.com/jishnusanthosh"
                       target="_blank"
@@ -115,7 +134,7 @@ export default function Contact() {
                       className="mt-1 inline-flex items-center gap-1 text-sm text-gray-400 transition hover:text-blue-400"
                     >
                       github.com/jishnusanthosh
-                     <Code2 size={19} />
+                      <Code2 size={19} />
                     </a>
                   </div>
                 </div>
@@ -126,9 +145,7 @@ export default function Contact() {
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-white">
-                      Contact
-                    </p>
+                    <p className="text-sm font-medium text-white">Contact</p>
                     <p className="mt-1 text-sm text-gray-400">
                       Send a message using the contact form.
                     </p>
@@ -244,20 +261,17 @@ export default function Contact() {
 
               <button
                 type="submit"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-500 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-600"
+                disabled={loading}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-500 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Validate Message
+                {loading ? "Sending..." : "Send Message"}
                 <Send size={17} />
               </button>
 
               {status && (
-                <div
-                  role="status"
-                  className="flex items-start gap-3 rounded-xl border border-blue-400/20 bg-blue-500/10 p-4 text-sm leading-6 text-blue-300"
-                >
-                  <CheckCircle2 size={18} className="mt-1 shrink-0" />
+                <p role="status" className="mt-4 text-sm text-blue-400">
                   {status}
-                </div>
+                </p>
               )}
             </form>
           </div>
